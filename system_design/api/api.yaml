@@ -1,0 +1,494 @@
+openapi: 3.0.4
+info:
+  title: VK API
+  version: 1.0.0
+servers:
+  - url: https://vkontakte.com/api/v1
+tags:
+  - name: user
+    description: Operations about user
+  - name: post
+    description: Operations about post
+  - name: chat
+    description: Chats with users
+paths:
+  /users/friends:
+    post:
+      tags:
+        - user
+      summary: Add a new friend
+      description: Add a new user to your friend list
+      requestBody:
+        description: Add a new friend
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserId'
+        required: true
+      responses:
+        '201':
+          description: Successfully added a friend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendId'
+        '400':
+          description: Invalid Input
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/friends/{friendId}:
+    delete:
+      tags:
+        - user
+      summary: Delete friend
+      description: Delete friend from a friend list
+      parameters:
+        - name: friendId
+          in: path
+          description: ID of a friend from friend list
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1270562
+      responses:
+        '200':
+          description: Friend deleted
+        '404':
+          description: Friend not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/friends/{userId}:
+    get:
+      tags:
+        - user
+      summary: List of friends
+      description: Get list of user friends
+      parameters:
+        - name: userId
+          in: path
+          description: Id of user which friend list we need to get
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1223
+      responses:
+        '200':
+          description: List of user friends
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFriends'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Get user info
+      description: Get information about specified user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of user profile
+          schema:
+            type: integer
+            format: int64
+            example: 1223
+      responses:
+        '200':
+          description: Information about user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post:
+    post:
+      tags:
+        - post
+      summary: Create new post
+      description: Create new post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostIn'
+      responses:
+        '201':
+          description: New added post information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostOut'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - post
+      summary: Get posts
+      description: Get list of post feed
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostInfo'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post/{postId}/upload-file:
+    post:
+      tags:
+        - post
+      summary: Upload post file
+      description: Attach file to a post
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: Id of post
+          schema:
+            type: integer
+            format: int64
+            example: 675422
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Attach a file to a post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file:
+                    $ref: '#/components/schemas/FileInfo'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /post/{userId}:
+    get:
+      tags:
+        - post
+      summary: User posts
+      description: Get list of user posts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of user to get posts from
+          schema:
+            type: integer
+            format: int64
+            example: 1223
+      responses:
+        '200':
+          description: List of user posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostInfo'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chat:
+    get:
+      tags:
+        - chat
+      summary: List of chats
+      description: Get list of user chats
+      responses:
+        '200':
+          description: List of chats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chat'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chat/{chatId}/message:
+    get:
+      tags:
+        - chat
+      summary: Chat messages
+      description: Get all of the chat messages
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: Id of the chat
+          schema:
+            type: integer
+            format: int64
+            example: 331
+      responses:
+        '200':
+          description: List of chat messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '404':
+          description: Chat is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexcepted error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags: 
+        - chat
+      summary: Send message
+      description: Send new message to chat
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          description: Id of the chat
+          schema:
+            type: integer
+            format: int64
+            example: 331
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageIn'
+      responses:
+        '201':
+          description: Successefully sent a message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Chat is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexcepted error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    UserId:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 1223
+    FriendId:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1270562
+    Error:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: true
+        result_text:
+          type: string
+          example: "Something happened"
+    UserFriends:
+      type: array
+      items:
+        $ref: '#/components/schemas/Friend'
+    Friend:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1270562
+        user_info:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1223
+        firstname:
+          type: string
+          example: Maxim
+        lastname:
+          type: string
+          example: Maximovich
+        patronymic:
+          type: string
+          example: Vkontaktovich
+        picture:
+          type: string
+          format: uri
+          example: 'https://cutecats.com/pfp.jpg'
+        date_of_birth:
+          type: string
+          format: date
+          example: '2002-01-18'
+    PostIn:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Games
+        description:
+          type: string
+          example: 'The sequel to the hit game by Supergiant Games. This time, you play as Melinoë, a witch and princess of the Underworld, aiming to defeat Kronos, the Titan of Time.'
+    PostOut:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 675422
+    PostInfo:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Games
+        description:
+          type: string
+          example: 'The sequel to the hit game by Supergiant Games. This time, you play as Melinoë, a witch and princess of the Underworld, aiming to defeat Kronos, the Titan of Time.'
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInfo'
+        author:
+          $ref: '#/components/schemas/User'
+        dt_create:
+          type: string
+          format: datetime
+          example: '2025-01-18 12:22:33'
+        dt_update:
+          type: string
+          format: datetime
+          example: '2025-01-19 16:25:12'
+    FileInfo:
+      type: string
+      format: uri
+      example: https://cutecats.com/file/as/g3/544.jpg
+    Chat:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 331
+        participants:
+          type: array
+          items:
+            type: integer
+            format: int64
+            example: 1223
+            description: Ids list of participants in chat
+        name:
+          type: string
+          example: 'Champions'
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 671
+        author:
+          $ref: '#/components/schemas/User'
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInfo'
+        text:
+          type: string
+          example: 'Hello world'
+    MessageIn:
+      type: object
+      properties:
+        text:
+          type: string
+          example: 'Hello world'
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInfo'

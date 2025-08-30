@@ -1,0 +1,118 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+
+Table users {
+  id integer [primary key]
+  firstname varchar
+  lastname varchar
+  partronymic varchar
+  bio text
+  media_id integer
+  city varchar
+}
+
+Table interests {
+  id integer [primary key]
+  name varchar
+}
+
+Table user_interests {
+  user_id integer
+  interest_id integer
+}
+
+Table posts {
+  id integer [primary key]
+  user_id integer
+  body text
+  likes integer // Обновляется периодически с Redis 
+  views integer // Обновляется периодически с Redis 
+}
+
+Table tags {
+  id integer [primary key]
+  name varchar
+}
+
+Table post_tags {
+  post_id integer
+  tag_id integer
+}
+
+Table post_media {
+  post_id integer
+  media_id integer
+}
+
+Table comments {
+  id integer [primary key]
+  user_id integer
+  post_id integer
+  body text
+}
+
+Table media {
+  id integer [primary key]
+  url varchar
+  type enum
+}
+
+Table chats {
+  id integer [primary key]
+  title varchar
+  dt_create datetime
+}
+
+Table chat_participants {
+  chat_id integer
+  user_id integer
+}
+
+Table messages {
+  id integer [primary key]
+  user_id integer
+  chat_id integer
+  body text
+  dt_create datetime
+  dt_update datetime
+  viewed boolean
+  removed boolean
+}
+
+Table message_media {
+  message_id integer
+  media_id integer
+}
+
+Table followers {
+  follow_id integer
+  followed_id integer
+  type ENUM
+}
+
+Ref: users.id < user_interests.user_id
+Ref: interests.id < user_interests.interest_id
+Ref: media.id < users.media_id
+
+Ref: users.id < comments.user_id
+
+Ref: posts.id < post_tags.post_id
+Ref: users.id < posts.user_id
+Ref: tags.id < post_tags.tag_id
+Ref: posts.id < post_media.post_id
+Ref: media.id < post_media.media_id
+Ref: posts.id < comments.post_id
+
+Ref: chats.id < chat_participants.chat_id
+Ref: users.id < chat_participants.user_id
+
+Ref: users.id < messages.user_id
+
+Ref: messages.id < message_media.message_id
+Ref: media.id < message_media.media_id
+
+Ref: chats.id < messages.chat_id
+
+Ref: users.id < followers.follow_id
+Ref: users.id < followers.followed_id
