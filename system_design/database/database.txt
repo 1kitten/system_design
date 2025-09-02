@@ -1,5 +1,16 @@
-// Use DBML to define your database structure
-// Docs: https://dbml.dbdiagram.io/docs
+// Replication:
+// - master-slave
+// - sync: 2 (quorum-sync) для гарантии RPO=0
+// - async: 1 для аналитики
+// - RF(replication factor): 4
+//
+// Sharding:
+// - key base, но по владению "ownership":
+//   * users, followers - по user_id
+//   * posts, comments - по post_id
+//   * chats, messages - по chat_id
+// - Виртуальные шарды (256), которые распределяются по серверам
+// - Для поиска и тегов - внешний индекс (ES)
 
 
 Table users {
